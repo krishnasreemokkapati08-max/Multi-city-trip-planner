@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Voyagr — Dark Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#07080A;--obsidian:#0D0F12;--deep:#111418;
+  --surface:#161B21;--surface2:#1C222A;--surface3:#222A34;
+  --edge:#2A3340;--edge2:#334055;
+  --mist:#5A6E82;--mist2:#7A90A8;--silver:#A8BDD0;--snow:#E8F0F8;
+  --amber:#D4A847;--amber2:#E8C06A;--amber-dim:#1A1608;--amber-glow:rgba(212,168,71,0.12);
+  --teal:#2EC4B6;--teal-dim:#061817;--rose:#E07070;--rose-dim:#1A0A0A;
+  --r4:4px;--r8:8px;--r12:12px;--r16:16px;
+  --f-display:'Playfair Display',Georgia,serif;
+  --f-body:'Outfit',sans-serif;
+  --f-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--snow);font-family:var(--f-body);font-size:14px;font-weight:300;line-height:1.7;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.055'/%3E%3C/svg%3E");pointer-events:none;z-index:999}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--edge2);border-radius:2px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(7,8,10,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:58px}
+.nav-brand{display:flex;align-items:center;gap:1rem}
+.wordmark{font-family:var(--f-display);font-size:1.45rem;font-weight:300;letter-spacing:0.18em;text-transform:uppercase;color:var(--snow)}
+.wordmark em{color:var(--amber);font-style:normal}
+.nav-div{width:1px;height:18px;background:var(--edge2)}
+.nav-tag{font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--mist)}
+.nav-right{display:flex;align-items:center;gap:0.5rem;font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;min-height:320px;display:flex;align-items:flex-end;padding:4rem 2.5rem 3.5rem}
+.hero-aurora{position:absolute;inset:0;background:radial-gradient(ellipse 800px 400px at 70% 140%,rgba(212,168,71,0.09) 0%,transparent 55%),radial-gradient(ellipse 500px 500px at -10% 110%,rgba(46,196,182,0.07) 0%,transparent 50%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(42,51,64,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(42,51,64,0.4) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%)}
+.hero-num{position:absolute;right:2.5rem;top:2rem;font-family:var(--f-mono);font-size:5rem;color:rgba(255,255,255,0.025);line-height:1;user-select:none}
+.hero-content{position:relative;z-index:1;max-width:620px}
+.eyebrow{display:flex;align-items:center;gap:0.9rem;font-size:0.58rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--amber);margin-bottom:1.3rem}
+.eyebrow-line{width:32px;height:1px;background:var(--amber);opacity:0.7}
+h1{font-family:var(--f-display);font-size:clamp(2.6rem,5vw,4.2rem);font-weight:300;line-height:1.06;color:var(--snow);margin-bottom:1.1rem}
+h1 em{font-style:italic;color:var(--amber2)}
+.hero-sub{font-size:0.82rem;color:var(--mist2);font-weight:300;letter-spacing:0.04em;line-height:1.85;max-width:430px}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:360px 1fr;gap:2rem;max-width:1220px;margin:0 auto;padding:2.5rem 2rem 5rem;align-items:start}
+@media(max-width:960px){nav{padding:0 1.2rem}.hero{padding:3rem 1.2rem 2.5rem;min-height:240px}.hero-num{display:none}.layout{grid-template-columns:1fr;padding:1.5rem 1.2rem 4rem}}
+
+/* FORM PANEL */
+.form-panel{background:var(--surface);border:1px solid var(--edge);border-radius:var(--r16);overflow:hidden;position:sticky;top:78px}
+.form-panel-head{padding:1.3rem 1.6rem;border-bottom:1px solid var(--edge);display:flex;align-items:center;gap:0.7rem;background:var(--obsidian)}
+.panel-icon-wrap{width:28px;height:28px;border-radius:var(--r8);border:1px solid var(--edge2);display:flex;align-items:center;justify-content:center;font-size:12px}
+.panel-title{font-family:var(--f-display);font-size:0.95rem;font-weight:300;letter-spacing:0.12em;text-transform:uppercase;color:var(--silver)}
+.form-body{padding:1.5rem 1.4rem}
+.field{margin-bottom:1.15rem}
+.flabel{display:block;font-size:0.58rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--mist);margin-bottom:0.42rem}
+input[type=text],input[type=number],select{width:100%;background:var(--deep);border:1px solid var(--edge);border-radius:var(--r8);padding:0.6rem 0.85rem;color:var(--snow);font-family:var(--f-body);font-size:0.82rem;font-weight:300;outline:none;transition:border-color 0.2s,box-shadow 0.2s;appearance:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-glow)}
+input::placeholder{color:var(--mist)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235A6E82'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:2rem}
+.hr{height:1px;background:var(--edge);margin:1.2rem 0}
+.cities-wrap{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.55rem}
+.c-row{display:flex;align-items:center;gap:0.5rem}
+.c-idx{font-family:var(--f-mono);font-size:0.58rem;color:var(--amber);min-width:18px;text-align:right}
+.c-row input{flex:1}
+.btn-rm{width:26px;height:26px;flex-shrink:0;border:1px solid var(--edge);border-radius:var(--r4);background:none;color:var(--mist);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.btn-rm:hover{border-color:var(--rose);color:var(--rose)}
+.btn-add{width:100%;background:none;border:1px dashed var(--edge);border-radius:var(--r8);padding:0.5rem;color:var(--mist);cursor:pointer;font-family:var(--f-body);font-size:0.72rem;font-weight:300;letter-spacing:0.1em;display:flex;align-items:center;justify-content:center;gap:0.4rem;transition:all 0.2s}
+.btn-add:hover{border-color:var(--amber);color:var(--amber2)}
+.pills{display:flex;flex-wrap:wrap;gap:0.35rem}
+.pill{padding:0.25rem 0.65rem;border-radius:100px;border:1px solid var(--edge);background:none;color:var(--mist2);font-size:0.66rem;font-family:var(--f-body);font-weight:300;letter-spacing:0.06em;cursor:pointer;transition:all 0.18s}
+.pill.on{border-color:var(--amber);background:var(--amber-glow);color:var(--amber2)}
+.btn-gen{width:100%;background:var(--amber);color:var(--void);border:none;border-radius:var(--r8);padding:0.95rem;font-family:var(--f-display);font-size:0.95rem;font-weight:400;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;margin-top:0.4rem;position:relative;overflow:hidden;transition:background 0.2s,transform 0.1s}
+.btn-gen::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:translateX(-100%);transition:transform 0.6s ease}
+.btn-gen:hover{background:var(--amber2)}
+.btn-gen:hover::before{transform:translateX(100%)}
+.btn-gen:active{transform:scale(0.99)}
+.saved-wrap{margin-top:1.3rem}
+.saved-hd{font-size:0.58rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--mist);display:block;margin-bottom:0.6rem}
+.saved-item{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0.7rem;border:1px solid var(--edge);border-radius:var(--r8);margin-bottom:0.35rem;background:var(--deep);transition:border-color 0.15s}
+.saved-item:hover{border-color:var(--edge2)}
+.s-name{font-size:0.78rem;font-weight:400;color:var(--silver)}
+.s-meta{font-size:0.65rem;color:var(--mist);margin-top:0.05rem}
+.s-btns{display:flex;gap:0.3rem}
+.btn-xs{padding:0.2rem 0.5rem;border:1px solid var(--edge);border-radius:var(--r4);background:none;color:var(--mist);font-size:0.62rem;font-family:var(--f-body);font-weight:300;letter-spacing:0.06em;cursor:pointer;transition:all 0.15s}
+.btn-xs:hover{border-color:var(--amber);color:var(--amber2)}
+.btn-xs.del:hover{border-color:var(--rose);color:var(--rose)}
+
+/* OUTPUT */
+#output{display:none}
+#output.show{display:block}
+
+/* STATS */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:var(--r16);overflow:hidden;margin-bottom:1.8rem}
+@media(max-width:600px){.stats-strip{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);padding:1.3rem 1.4rem;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),transparent)}
+.stat-val{font-family:var(--f-display);font-size:2rem;font-weight:300;color:var(--snow);line-height:1;margin-bottom:0.3rem}
+.stat-lbl{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--mist)}
+
+/* ROUTE */
+.route-card{background:var(--surface);border:1px solid var(--edge);border-radius:var(--r16);padding:1.5rem 1.6rem;margin-bottom:1.8rem}
+.s-eyebrow{font-size:0.58rem;letter-spacing:0.26em;text-transform:uppercase;color:var(--mist);display:flex;align-items:center;gap:0.8rem;margin-bottom:1.3rem}
+.s-eyebrow::after{content:'';flex:1;height:1px;background:var(--edge)}
+.route-track{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;gap:0}
+.route-track::-webkit-scrollbar{display:none}
+.r-stop{display:flex;align-items:center;flex-shrink:0}
+.r-node{display:flex;flex-direction:column;align-items:center;gap:0.4rem}
+.r-ring{width:38px;height:38px;border-radius:50%;border:1px solid var(--edge2);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:0.6rem;color:var(--mist2)}
+.r-ring.start{border-color:var(--teal);color:var(--teal);background:var(--teal-dim);box-shadow:0 0 12px rgba(46,196,182,0.15)}
+.r-ring.end{border-color:var(--amber);color:var(--amber);background:var(--amber-dim);box-shadow:0 0 12px var(--amber-glow)}
+.r-name{font-size:0.62rem;font-weight:400;color:var(--silver);text-align:center;max-width:68px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-line{width:48px;display:flex;align-items:center;position:relative;margin:0 0 14px}
+.r-line::before{content:'';display:block;width:100%;height:1px;background:linear-gradient(90deg,var(--edge2),var(--amber));opacity:0.5}
+.r-line::after{content:'›';position:absolute;right:-3px;color:var(--amber);font-size:1rem;line-height:1;margin-top:1px;opacity:0.7}
+
+/* MAIN CARD */
+.main-card{background:var(--surface);border:1px solid var(--edge);border-radius:var(--r16);overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--edge);background:var(--obsidian);overflow-x:auto}
+.tab{padding:1rem 1.2rem;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.18s;user-select:none;white-space:nowrap}
+.tab:hover{color:var(--silver)}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber)}
+.pane{display:none;padding:1.8rem}
+.pane.on{display:block}
+
+/* DAY CARDS */
+.day-card{border:1px solid var(--edge);border-radius:var(--r12);overflow:hidden;margin-bottom:0.75rem;transition:border-color 0.2s}
+.day-card:hover,.day-card.open{border-color:var(--edge2)}
+.day-head{display:flex;align-items:center;justify-content:space-between;padding:0.9rem 1.1rem;cursor:pointer;user-select:none;background:var(--surface2);transition:background 0.15s}
+.day-head:hover{background:var(--surface3)}
+.dhl{display:flex;align-items:center;gap:0.8rem}
+.d-badge{font-family:var(--f-mono);font-size:0.58rem;color:var(--amber);letter-spacing:0.08em;background:var(--amber-dim);border:1px solid rgba(212,168,71,0.2);padding:0.18rem 0.5rem;border-radius:var(--r4)}
+.d-title{font-family:var(--f-display);font-size:0.9rem;font-weight:300;color:var(--silver);letter-spacing:0.02em}
+.d-city{font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--mist);border:1px solid var(--edge);padding:0.14rem 0.52rem;border-radius:100px}
+.d-chev{font-size:0.7rem;color:var(--mist);transition:transform 0.2s}
+.day-card.open .d-chev{transform:rotate(90deg)}
+.day-body{display:none;border-top:1px solid var(--edge);padding:0.2rem 1.1rem 1rem;background:var(--obsidian)}
+.day-body.open{display:block}
+.sched{list-style:none;padding:0;margin-top:0.8rem}
+.srow{display:flex;gap:1rem;padding:0.55rem 0;border-bottom:1px solid rgba(42,51,64,0.7);align-items:flex-start}
+.srow:last-child{border-bottom:none}
+.stime{font-family:var(--f-mono);font-size:0.62rem;color:var(--amber);min-width:42px;padding-top:0.1rem;letter-spacing:0.04em}
+.stext{font-size:0.8rem;color:var(--mist2);line-height:1.55;font-weight:300}
+.stext strong{color:var(--silver);font-weight:400}
+.ssub{display:block;font-size:0.7rem;color:var(--mist);margin-top:0.1rem;font-style:italic}
+.transit{display:flex;align-items:center;gap:1rem;padding:0.7rem 0;margin-bottom:0.2rem}
+.transit::before,.transit::after{content:'';flex:1;height:1px;background:var(--edge)}
+.transit span{font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--amber);white-space:nowrap}
+
+/* BUDGET */
+.bud-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.6rem}
+.bud-stat{background:var(--surface2);border:1px solid var(--edge);border-radius:var(--r12);padding:1.1rem 1.2rem;position:relative;overflow:hidden}
+.bud-stat::before{content:'';position:absolute;top:0;left:0;width:3px;bottom:0;background:var(--amber)}
+.bud-val{font-family:var(--f-display);font-size:1.55rem;font-weight:300;color:var(--snow);line-height:1;margin-bottom:0.25rem}
+.bud-lbl{font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--mist)}
+.bars-wrap{margin-bottom:1.6rem}
+.brow{margin-bottom:1rem}
+.brow-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem}
+.brow-name{font-size:0.74rem;color:var(--silver);font-weight:300}
+.brow-amt{font-family:var(--f-mono);font-size:0.68rem;color:var(--snow)}
+.btrack{height:4px;background:var(--edge);border-radius:100px;overflow:hidden}
+.bfill{height:100%;border-radius:100px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.city-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:0.65rem}
+.city-bcard{border:1px solid var(--edge);border-radius:var(--r12);padding:1rem;background:var(--surface2)}
+.city-bname{font-family:var(--f-display);font-size:0.9rem;font-weight:300;color:var(--silver);margin-bottom:0.55rem;padding-bottom:0.5rem;border-bottom:1px solid var(--edge)}
+.brow2{display:flex;justify-content:space-between;font-size:0.67rem;color:var(--mist);padding:0.17rem 0}
+.brow2 .v{font-family:var(--f-mono);font-size:0.64rem;color:var(--mist2)}
+.bud-tip{margin-top:1.2rem;padding:0.85rem 1rem 0.85rem 1.2rem;border-left:2px solid var(--amber);background:var(--amber-dim);border-radius:0 var(--r8) var(--r8) 0;font-size:0.77rem;color:var(--mist2);line-height:1.6}
+
+/* RESTAURANTS */
+.rf-bar{display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;margin-bottom:1.4rem}
+.rf-lbl{font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist);margin-right:0.2rem}
+.rsection{margin-bottom:1.8rem}
+.rsec-title{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist);display:flex;align-items:center;gap:0.7rem;margin-bottom:0.9rem}
+.rsec-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);flex-shrink:0;box-shadow:0 0 5px var(--amber)}
+.rsec-title::after{content:'';flex:1;height:1px;background:var(--edge)}
+.rest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:0.65rem}
+.rcard{border:1px solid var(--edge);border-radius:var(--r12);padding:1rem;background:var(--surface2);position:relative;overflow:hidden;transition:border-color 0.2s,transform 0.2s,background 0.2s}
+.rcard:hover{border-color:var(--edge2);background:var(--surface3);transform:translateY(-2px)}
+.rcard-accent{position:absolute;top:0;left:0;right:0;height:2px}
+.rname{font-family:var(--f-display);font-size:0.92rem;font-weight:300;color:var(--silver);margin-bottom:0.4rem;margin-top:0.25rem}
+.rtags{display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.6rem}
+.rtag{font-size:0.6rem;color:var(--mist);border:1px solid var(--edge);padding:0.1rem 0.42rem;border-radius:100px}
+.rfoot{display:flex;align-items:center;justify-content:space-between;padding-top:0.5rem;border-top:1px solid var(--edge)}
+.rrating{font-family:var(--f-mono);font-size:0.68rem;color:var(--amber)}
+.rprice{font-family:var(--f-mono);font-size:0.68rem;color:var(--teal)}
+.no-rest{font-size:0.78rem;color:var(--mist);font-style:italic;padding:0.4rem 0}
+
+/* HOTELS */
+.hf-bar{display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;margin-bottom:1.6rem}
+.hf-lbl{font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist);margin-right:0.2rem}
+.hcity-section{margin-bottom:2.2rem}
+.hcity-hd{display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem}
+.hcity-label{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist);display:flex;align-items:center;gap:0.6rem;flex:1}
+.hcity-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);box-shadow:0 0 5px var(--teal);flex-shrink:0}
+.hcity-label::after{content:'';flex:1;height:1px;background:var(--edge)}
+.hnight-badge{font-family:var(--f-mono);font-size:0.58rem;color:var(--teal);border:1px solid rgba(46,196,182,0.25);background:var(--teal-dim);padding:0.18rem 0.55rem;border-radius:100px;white-space:nowrap;flex-shrink:0}
+.hotel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:0.75rem}
+.hcard{border:1px solid var(--edge);border-radius:var(--r12);background:var(--surface2);overflow:hidden;position:relative;transition:border-color 0.2s,transform 0.2s,background 0.2s}
+.hcard:hover{border-color:var(--edge2);background:var(--surface3);transform:translateY(-2px)}
+.hcard-stripe{height:2px;width:100%}
+.hcard-body{padding:0.9rem 1rem 0.75rem;position:relative}
+.hcard-stars{font-size:0.62rem;color:var(--amber);letter-spacing:0.05em;margin-bottom:0.3rem}
+.hcard-name{font-family:var(--f-display);font-size:0.95rem;font-weight:300;color:var(--silver);line-height:1.2;margin-bottom:0.3rem}
+.hcard-loc{font-size:0.64rem;color:var(--mist);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.3rem}
+.hcard-loc::before{content:'◎';font-size:0.55rem;color:var(--mist2)}
+.hcard-amenities{display:flex;flex-wrap:wrap;gap:0.28rem;margin-bottom:0}
+.hcard-amenity{font-size:0.58rem;color:var(--mist2);border:1px solid var(--edge);padding:0.1rem 0.38rem;border-radius:var(--r4);background:var(--obsidian)}
+.hcard-foot{border-top:1px solid var(--edge);padding:0.6rem 1rem;display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,10,0.5)}
+.hcard-price{display:flex;flex-direction:column}
+.hcard-price-val{font-family:var(--f-mono);font-size:0.72rem;color:var(--amber)}
+.hcard-price-lbl{font-size:0.55rem;color:var(--mist);letter-spacing:0.06em}
+.hcard-rating-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem}
+.hcard-r-num{font-family:var(--f-mono);font-size:0.68rem;color:var(--snow)}
+.hcard-r-bar{width:36px;height:3px;background:var(--edge);border-radius:100px;overflow:hidden}
+.hcard-r-fill{height:100%;border-radius:100px}
+.hcard-badge{position:absolute;top:0.6rem;right:0.6rem;font-size:0.53rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.15rem 0.42rem;border-radius:100px;font-weight:500}
+.hcard-badge.rec{background:rgba(46,196,182,0.12);color:var(--teal);border:1px solid rgba(46,196,182,0.25)}
+.hcard-badge.pop{background:rgba(212,168,71,0.12);color:var(--amber);border:1px solid rgba(212,168,71,0.22)}
+.no-hotel{font-size:0.78rem;color:var(--mist);font-style:italic;padding:0.4rem 0}
+
+/* ACTIONS */
+.act-row{display:flex;gap:0.75rem;margin-top:1.4rem;flex-wrap:wrap}
+.btn-act{flex:1;min-width:130px;padding:0.8rem 1rem;border-radius:var(--r8);font-family:var(--f-body);font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:400;cursor:pointer;transition:all 0.18s}
+.btn-act.p{background:var(--teal);color:var(--void);border:none}
+.btn-act.p:hover{background:#3DD6C8}
+.btn-act.s{background:none;border:1px solid var(--edge2);color:var(--mist2)}
+.btn-act.s:hover{border-color:var(--silver);color:var(--silver)}
+
+/* FOOTER */
+footer{text-align:center;border-top:1px solid var(--edge);padding:1.8rem 2rem;background:var(--obsidian);font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mist)}
+footer em{color:var(--amber);font-style:normal}
+
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp 0.45s ease forwards;opacity:0}
+.d1{animation-delay:0.05s}.d2{animation-delay:0.12s}.d3{animation-delay:0.18s}.d4{animation-delay:0.24s}
+
+@media print{nav,.form-panel,footer,.act-row{display:none!important}.layout{grid-template-columns:1fr!important}#output{display:block!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="wordmark">Voyag<em>r</em></div>
+    <div class="nav-div"></div>
+    <div class="nav-tag">Multi-City Trip Planner</div>
+  </div>
+  <div class="nav-right"><div class="nav-dot"></div><span>Live</span></div>
+</nav>
+
+<section class="hero">
+  <div class="hero-aurora"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-num">01</div>
+  <div class="hero-content">
+    <div class="eyebrow"><div class="eyebrow-line"></div>Intelligent Travel Planning</div>
+    <h1>Journey further.<br/><em>Plan smarter.</em></h1>
+    <p class="hero-sub">Multi-city itineraries, budget intelligence, curated dining & hotel recommendations — crafted for the discerning traveller.</p>
+  </div>
+</section>
+
+<div class="layout">
+
+  <!-- FORM PANEL -->
+  <aside>
+    <div class="form-panel">
+      <div class="form-panel-head">
+        <div class="panel-icon-wrap">✦</div>
+        <div class="panel-title">Configure Trip</div>
+      </div>
+      <div class="form-body">
+
+        <div class="field">
+          <label class="flabel">Destinations</label>
+          <div class="cities-wrap" id="clist">
+            <div class="c-row"><span class="c-idx">01</span><input type="text" placeholder="e.g. Mumbai" value="Mumbai"/><button class="btn-rm" onclick="rmCity(this)">×</button></div>
+            <div class="c-row"><span class="c-idx">02</span><input type="text" placeholder="e.g. Goa" value="Goa"/><button class="btn-rm" onclick="rmCity(this)">×</button></div>
+          </div>
+          <button class="btn-add" onclick="addCity()">+ Add destination</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="field">
+          <label class="flabel">Total Budget (₹)</label>
+          <input type="number" id="budget" value="50000" min="1000"/>
+        </div>
+
+        <div class="field">
+          <label class="flabel">Duration (days)</label>
+          <input type="number" id="duration" value="7" min="1" max="60"/>
+        </div>
+
+        <div class="field">
+          <label class="flabel">Accommodation Tier</label>
+          <select id="accom">
+            <option value="budget">Budget — Hostel / OYO (₹600/night)</option>
+            <option value="mid" selected>Mid-Range — 3★ Hotel (₹2,000/night)</option>
+            <option value="luxury">Luxury — 5★ Hotel (₹6,000/night)</option>
+          </select>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="field">
+          <label class="flabel">Cuisine Preference</label>
+          <div class="pills" id="cpills">
+            <button class="pill on" data-v="Any">Any</button>
+            <button class="pill" data-v="North Indian">North Indian</button>
+            <button class="pill" data-v="South Indian">South Indian</button>
+            <button class="pill" data-v="Seafood">Seafood</button>
+            <button class="pill" data-v="Continental">Continental</button>
+            <button class="pill" data-v="Street Food">Street Food</button>
+            <button class="pill" data-v="Mughlai">Mughlai</button>
+          </div>
+        </div>
+
+        <button class="btn-gen" onclick="generate()">Generate Itinerary →</button>
+
+        <div class="saved-wrap">
+          <div class="hr"></div>
+          <span class="saved-hd">Saved Trips</span>
+          <div id="saved-list"></div>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- OUTPUT -->
+  <div id="output">
+    <div class="stats-strip anim d1" id="stats"></div>
+    <div class="route-card anim d2">
+      <div class="s-eyebrow">Route Overview</div>
+      <div class="route-track" id="rtrack"></div>
+    </div>
+    <div class="main-card anim d3">
+      <div class="tabs">
+        <div class="tab on" onclick="switchTab('itin',this)">Itinerary</div>
+        <div class="tab" onclick="switchTab('budget',this)">Budget</div>
+        <div class="tab" onclick="switchTab('restaurants',this)">Restaurants</div>
+        <div class="tab" onclick="switchTab('hotels',this)">Hotels</div>
+      </div>
+      <div class="pane on" id="pane-itin"></div>
+      <div class="pane" id="pane-budget"></div>
+      <div class="pane" id="pane-restaurants"></div>
+      <div class="pane" id="pane-hotels"></div>
+    </div>
+    <div class="act-row anim d4">
+      <button class="btn-act p" onclick="saveTrip()">Save Trip</button>
+      <button class="btn-act s" onclick="window.print()">Export / Print</button>
+    </div>
+  </div>
+
+</div>
+
+<footer><em>Voyagr</em> &nbsp;·&nbsp; Smart Multi-City Trip Planner &nbsp;·&nbsp; Dark Edition</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════
+const CITY={
+  "Mumbai":   {h:["Gateway of India","Marine Drive","Juhu Beach","Elephanta Caves","Dharavi","Siddhivinayak Temple"],t:"Local train · Metro · Uber"},
+  "Delhi":    {h:["Red Fort","Qutub Minar","India Gate","Humayun's Tomb","Lodhi Garden","Connaught Place"],t:"Delhi Metro · Uber · Auto"},
+  "Jaipur":   {h:["Amer Fort","City Palace","Hawa Mahal","Jantar Mantar","Nahargarh Fort","Johri Bazar"],t:"Auto · Uber · Cycle Rickshaw"},
+  "Goa":      {h:["Calangute Beach","Baga Beach","Old Goa Churches","Dudhsagar Falls","Anjuna Market","Fort Aguada"],t:"Scooter Rental · Uber"},
+  "Bangalore":{h:["Lalbagh Garden","Cubbon Park","UB City","ISKCON Temple","Nandi Hills","Tipu's Palace"],t:"Metro · Uber · BMTC"},
+  "Chennai":  {h:["Marina Beach","Kapaleeshwarar Temple","Fort St George","San Thome Cathedral","Elliot's Beach","Guindy Park"],t:"Metro · Uber · MTC"},
+  "Hyderabad":{h:["Charminar","Golconda Fort","Ramoji Film City","Hussain Sagar","Birla Mandir","Laad Bazaar"],t:"Metro · Uber · Auto"},
+  "Kolkata":  {h:["Victoria Memorial","Howrah Bridge","Dakshineswar Temple","Indian Museum","Park Street","Sundarbans"],t:"Tram · Metro · Yellow Taxi"},
+  "Agra":     {h:["Taj Mahal","Agra Fort","Fatehpur Sikri","Itimad-ud-Daula","Mehtab Bagh","Kinari Bazaar"],t:"Auto · E-rickshaw · Uber"},
+  "Udaipur":  {h:["City Palace","Lake Pichola","Jagdish Temple","Monsoon Palace","Saheliyon ki Bari","Fateh Sagar"],t:"Auto · Uber · Boat"},
+  "Varanasi": {h:["Dashashwamedh Ghat","Ganga Aarti","Kashi Vishwanath","Sarnath","Assi Ghat","BHU Campus"],t:"E-rickshaw · Auto · Boat"},
+  "Mysore":   {h:["Mysore Palace","Chamundeshwari Temple","Brindavan Gardens","Mysore Zoo","Srirangapatna","Devaraja Market"],t:"Auto · KSRTC · Uber"},
+  "Shimla":   {h:["Mall Road","Jakhu Temple","Christ Church","The Ridge","Kufri","Chadwick Falls"],t:"Toy Train · Taxi · Walk"},
+  "Manali":   {h:["Rohtang Pass","Solang Valley","Hadimba Temple","Old Manali","Beas River","Naggar Castle"],t:"Taxi · Local Bus"},
+  "Rishikesh":{h:["Laxman Jhula","Triveni Ghat","Ram Jhula","Beatle Ashram","River Rafting","Neer Garh Falls"],t:"Auto · Taxi · Walk"},
+};
+
+const RESTS={
+  "Mumbai":   [{n:"Trishna",c:"Seafood",r:4.5,p:"₹₹₹",l:"Fort"},{n:"Leopold Cafe",c:"Continental",r:4.2,p:"₹₹",l:"Colaba"},{n:"Khyber",c:"North Indian",r:4.6,p:"₹₹₹",l:"Fort"},{n:"Sardar Refreshments",c:"Street Food",r:4.7,p:"₹",l:"Tardeo"},{n:"Britannia & Co.",c:"Parsi",r:4.4,p:"₹₹",l:"Ballard Estate"}],
+  "Delhi":    [{n:"Bukhara",c:"North Indian",r:4.8,p:"₹₹₹₹",l:"ITC Maurya"},{n:"Karim's",c:"Mughlai",r:4.6,p:"₹₹",l:"Jama Masjid"},{n:"Indian Accent",c:"Modern Indian",r:4.7,p:"₹₹₹₹",l:"The Manor"},{n:"Paranthe Wali Gali",c:"Street Food",r:4.5,p:"₹",l:"Chandni Chowk"},{n:"Sagar Ratna",c:"South Indian",r:4.2,p:"₹₹",l:"Def Colony"}],
+  "Jaipur":   [{n:"Suvarna Mahal",c:"Rajasthani",r:4.7,p:"₹₹₹₹",l:"Rambagh Palace"},{n:"LMB",c:"Street Food",r:4.6,p:"₹",l:"Johari Bazar"},{n:"Peacock Rooftop",c:"Multi-Cuisine",r:4.3,p:"₹₹",l:"Heritage Inn"},{n:"Rawat Mishthan",c:"Street Food",r:4.7,p:"₹",l:"Station Rd"}],
+  "Goa":      [{n:"Fisherman's Wharf",c:"Seafood",r:4.4,p:"₹₹₹",l:"Cavelossim"},{n:"Vinayak Family",c:"South Indian",r:4.5,p:"₹₹",l:"Panaji"},{n:"Thalassa",c:"Continental",r:4.3,p:"₹₹₹",l:"Vagator"},{n:"Brittos",c:"Seafood",r:4.4,p:"₹₹",l:"Baga"}],
+  "Bangalore":[{n:"MTR",c:"South Indian",r:4.7,p:"₹",l:"Lalbagh Rd"},{n:"Karavalli",c:"Coastal",r:4.5,p:"₹₹₹",l:"Gateway Hotel"},{n:"Truffles",c:"Continental",r:4.4,p:"₹₹",l:"Koramangala"},{n:"Vidyarthi Bhavan",c:"South Indian",r:4.6,p:"₹",l:"Gandhi Bazar"}],
+  "Hyderabad":[{n:"Paradise Biryani",c:"Hyderabadi",r:4.6,p:"₹₹",l:"Secunderabad"},{n:"Bawarchi",c:"Hyderabadi",r:4.5,p:"₹₹",l:"RTC X Roads"},{n:"Shah Ghouse",c:"Hyderabadi",r:4.7,p:"₹",l:"Tolichowki"},{n:"Jewel of Nizam",c:"Mughlai",r:4.4,p:"₹₹₹",l:"Falaknuma"}],
+  "Kolkata":  [{n:"Oh! Calcutta",c:"Bengali",r:4.5,p:"₹₹₹",l:"Forum Mall"},{n:"Peter Cat",c:"Continental",r:4.4,p:"₹₹",l:"Park Street"},{n:"Flurys",c:"Bakery",r:4.6,p:"₹₹",l:"Park Street"},{n:"Nizam's",c:"Mughlai",r:4.5,p:"₹",l:"New Market"}],
+  "Chennai":  [{n:"Saravana Bhavan",c:"South Indian",r:4.6,p:"₹",l:"Multiple"},{n:"Murugan Idli",c:"South Indian",r:4.5,p:"₹",l:"Multiple"},{n:"Junior Kuppanna",c:"Chettinad",r:4.4,p:"₹₹",l:"Anna Nagar"}],
+  "Agra":     [{n:"Esphahan",c:"Mughlai",r:4.7,p:"₹₹₹₹",l:"Oberoi Amarvilas"},{n:"Peshawri",c:"North Indian",r:4.5,p:"₹₹₹",l:"ITC Mughal"},{n:"Pinch of Spice",c:"North Indian",r:4.3,p:"₹₹",l:"Trans Yamuna"}],
+  "Varanasi": [{n:"Kashi Chat Bhandar",c:"Street Food",r:4.7,p:"₹",l:"Godaulia"},{n:"Baati Chokha",c:"North Indian",r:4.4,p:"₹₹",l:"Sigra"},{n:"Aadha-Aadha",c:"Continental",r:4.3,p:"₹₹",l:"Assi Ghat"}],
+  "Udaipur":  [{n:"Ambrai Restaurant",c:"Rajasthani",r:4.5,p:"₹₹₹",l:"Amet Haveli"},{n:"Upre Lake",c:"Multi-Cuisine",r:4.4,p:"₹₹₹",l:"Pichola Hotel"},{n:"Natraj Dining",c:"Rajasthani",r:4.6,p:"₹",l:"City area"}],
+  "Mysore":   [{n:"Mylari Hotel",c:"South Indian",r:4.6,p:"₹",l:"Nazarbad"},{n:"Hotel RRR",c:"South Indian",r:4.4,p:"₹",l:"Gandhi Sq"},{n:"Olive Garden",c:"Continental",r:4.2,p:"₹₹",l:"Nazarbad"}],
+  "Shimla":   [{n:"Ashiana & Goofa",c:"North Indian",r:4.3,p:"₹₹",l:"The Mall"},{n:"Indian Coffee House",c:"Continental",r:4.2,p:"₹",l:"The Mall"},{n:"Cecil Restaurant",c:"Multi-Cuisine",r:4.5,p:"₹₹₹",l:"The Mall"}],
+  "Manali":   [{n:"Johnson's Cafe",c:"Continental",r:4.5,p:"₹₹",l:"Circuit House Rd"},{n:"Cafe 1947",c:"North Indian",r:4.4,p:"₹₹",l:"Old Manali"},{n:"Drifters Inn",c:"Multi-Cuisine",r:4.3,p:"₹₹",l:"Old Manali"}],
+  "Rishikesh":[{n:"The Sitting Elephant",c:"Continental",r:4.5,p:"₹₹",l:"Tapovan"},{n:"Little Buddha Cafe",c:"Multi-Cuisine",r:4.4,p:"₹₹",l:"Laxman Jhula"},{n:"Chotiwala",c:"North Indian",r:4.2,p:"₹",l:"Ram Jhula"}],
+};
+
+const HOTELS={
+  "Mumbai":[
+    {n:"The Taj Mahal Palace",s:5,tier:"luxury",r:4.9,pn:28000,loc:"Colaba",am:["Pool","Spa","Butler","Sea View","Fine Dining"],badge:"pop"},
+    {n:"The Oberoi Mumbai",s:5,tier:"luxury",r:4.8,pn:22000,loc:"Nariman Point",am:["Pool","Spa","Sea View","Concierge"],badge:null},
+    {n:"ITC Maratha",s:5,tier:"luxury",r:4.6,pn:14000,loc:"Andheri",am:["Pool","Spa","Gym","Fine Dining"],badge:null},
+    {n:"Novotel Juhu",s:4,tier:"mid",r:4.4,pn:6500,loc:"Juhu Beach",am:["Pool","Gym","Free WiFi","Restaurant"],badge:"rec"},
+    {n:"Ibis Mumbai Airport",s:3,tier:"mid",r:4.1,pn:3800,loc:"Andheri East",am:["Free WiFi","Airport Shuttle","Restaurant"],badge:null},
+    {n:"Hotel Suba Palace",s:3,tier:"mid",r:4.0,pn:2800,loc:"CST",am:["Free WiFi","AC","24hr Front Desk"],badge:null},
+    {n:"Zostel Mumbai",s:1,tier:"budget",r:4.3,pn:700,loc:"Bandra",am:["Dorm/Private","Free WiFi","Locker"],badge:"rec"},
+    {n:"OYO Rooms Colaba",s:2,tier:"budget",r:3.8,pn:1200,loc:"Colaba",am:["AC","Free WiFi","24hr Checkout"],badge:null},
+  ],
+  "Delhi":[
+    {n:"The Leela Palace",s:5,tier:"luxury",r:4.9,pn:32000,loc:"Diplomatic Enclave",am:["Pool","Spa","Butler","Helipad","Fine Dining"],badge:"pop"},
+    {n:"The Imperial",s:5,tier:"luxury",r:4.8,pn:24000,loc:"Connaught Place",am:["Pool","Spa","Heritage Rooms","Fine Dining"],badge:null},
+    {n:"ITC Maurya",s:5,tier:"luxury",r:4.7,pn:18000,loc:"Diplomatic Enclave",am:["Pool","Spa","Gym","Bukhara"],badge:null},
+    {n:"Hotel Bloomrooms",s:3,tier:"mid",r:4.2,pn:3200,loc:"Janpath",am:["Free WiFi","Rooftop","AC","Café"],badge:"rec"},
+    {n:"The Claridges",s:4,tier:"mid",r:4.4,pn:7000,loc:"Lutyens Delhi",am:["Pool","Heritage Property","Fine Dining"],badge:null},
+    {n:"Zostel Delhi",s:1,tier:"budget",r:4.4,pn:650,loc:"Paharganj",am:["Dorm/Private","Free WiFi","Rooftop","Travel Desk"],badge:"rec"},
+    {n:"Hotel Namaskar",s:2,tier:"budget",r:3.7,pn:1400,loc:"Karol Bagh",am:["AC","Free WiFi","24hr Front Desk"],badge:null},
+  ],
+  "Jaipur":[
+    {n:"Rambagh Palace",s:5,tier:"luxury",r:4.9,pn:35000,loc:"Bhawani Singh Rd",am:["Pool","Spa","Heritage","Polo Field","Fine Dining"],badge:"pop"},
+    {n:"Taj Jai Mahal Palace",s:5,tier:"luxury",r:4.7,pn:20000,loc:"Civil Lines",am:["Pool","Spa","Gardens","Butler"],badge:null},
+    {n:"Fairmont Jaipur",s:5,tier:"luxury",r:4.6,pn:16000,loc:"Kukas",am:["Pool","Spa","Gym"],badge:null},
+    {n:"Hotel Pearl Palace",s:3,tier:"mid",r:4.5,pn:2500,loc:"Hathroi Fort",am:["Rooftop Restaurant","Free WiFi","Travel Help"],badge:"rec"},
+    {n:"Alsisar Haveli",s:3,tier:"mid",r:4.4,pn:4500,loc:"Sansar Chandra Rd",am:["Heritage Haveli","Courtyard","Free WiFi"],badge:null},
+    {n:"Moustache Hostel",s:1,tier:"budget",r:4.6,pn:600,loc:"Near Hawa Mahal",am:["Dorm/Private","Rooftop","Travel Desk"],badge:"pop"},
+    {n:"Zostel Jaipur",s:1,tier:"budget",r:4.3,pn:550,loc:"Old City",am:["Dorm/Private","Free WiFi","Locker"],badge:null},
+  ],
+  "Goa":[
+    {n:"Taj Exotica Resort & Spa",s:5,tier:"luxury",r:4.8,pn:30000,loc:"Benaulim Beach",am:["Private Beach","Pool","Spa","Butler","Water Sports"],badge:"pop"},
+    {n:"W Goa",s:5,tier:"luxury",r:4.7,pn:22000,loc:"Vagator Beach",am:["Infinity Pool","Spa","Nightclub","Beach"],badge:null},
+    {n:"The Leela Goa",s:5,tier:"luxury",r:4.7,pn:25000,loc:"Cavelossim",am:["Private Beach","Lagoon","Golf","Spa"],badge:null},
+    {n:"Cidade de Goa",s:4,tier:"mid",r:4.4,pn:7500,loc:"Vainguinim Beach",am:["Pool","Beach Access","Water Sports"],badge:"rec"},
+    {n:"Coconut Creek Resort",s:3,tier:"mid",r:4.3,pn:3500,loc:"Colva",am:["Pool","Garden","Free WiFi","Restaurant"],badge:null},
+    {n:"Jungle Beach Hostel",s:1,tier:"budget",r:4.5,pn:750,loc:"Anjuna",am:["Dorm/Private","Beach Nearby","Hammocks"],badge:"rec"},
+    {n:"Zostel Goa",s:1,tier:"budget",r:4.4,pn:650,loc:"Arambol",am:["Dorm/Private","Free WiFi","Chill Zone"],badge:null},
+  ],
+  "Bangalore":[
+    {n:"The Leela Palace Bangalore",s:5,tier:"luxury",r:4.8,pn:20000,loc:"Airport Road",am:["Pool","Spa","Butler","Fine Dining","Gym"],badge:"pop"},
+    {n:"Taj West End",s:5,tier:"luxury",r:4.8,pn:18000,loc:"Race Course Rd",am:["Pool","Heritage Gardens","Spa","Gym"],badge:null},
+    {n:"ITC Gardenia",s:5,tier:"luxury",r:4.7,pn:16000,loc:"Residency Road",am:["Pool","Spa","Rooftop Restaurant"],badge:null},
+    {n:"Ibis Bangalore City Centre",s:3,tier:"mid",r:4.1,pn:3500,loc:"Residency Road",am:["Free WiFi","Restaurant","AC"],badge:null},
+    {n:"Treebo Mint Casa Grande",s:3,tier:"mid",r:4.2,pn:2400,loc:"Koramangala",am:["Free WiFi","AC","24hr Front Desk"],badge:"rec"},
+    {n:"Zostel Bangalore",s:1,tier:"budget",r:4.3,pn:600,loc:"Indiranagar",am:["Dorm/Private","Café","Common Area"],badge:"rec"},
+  ],
+  "Chennai":[
+    {n:"ITC Grand Chola",s:5,tier:"luxury",r:4.8,pn:18000,loc:"Guindy",am:["Pool","Spa","Gym","Fine Dining"],badge:"pop"},
+    {n:"The Leela Palace Chennai",s:5,tier:"luxury",r:4.7,pn:20000,loc:"MRC Nagar",am:["Pool","Spa","Beach Nearby","Butler"],badge:null},
+    {n:"Taj Coromandel",s:5,tier:"luxury",r:4.7,pn:16000,loc:"Nungambakkam",am:["Pool","Spa","Heritage","Fine Dining"],badge:null},
+    {n:"Radisson Blu Chennai",s:4,tier:"mid",r:4.3,pn:6000,loc:"Egmore",am:["Pool","Free WiFi","Gym","Restaurant"],badge:"rec"},
+    {n:"Hotel Palmgrove",s:3,tier:"mid",r:4.0,pn:2800,loc:"Nungambakkam",am:["Free WiFi","AC","Restaurant"],badge:null},
+    {n:"Zostel Chennai",s:1,tier:"budget",r:4.3,pn:600,loc:"Kodambakkam",am:["Dorm/Private","Free WiFi","Common Room"],badge:"rec"},
+  ],
+  "Hyderabad":[
+    {n:"Taj Falaknuma Palace",s:5,tier:"luxury",r:4.9,pn:45000,loc:"Engine Bowli",am:["Heritage Palace","Butler","Fine Dining","Horse Carriage","Spa"],badge:"pop"},
+    {n:"ITC Kohenur",s:5,tier:"luxury",r:4.7,pn:18000,loc:"HITECH City",am:["Pool","Spa","Rooftop Bar","Gym"],badge:null},
+    {n:"Taj Krishna",s:5,tier:"luxury",r:4.6,pn:14000,loc:"Banjara Hills",am:["Pool","Spa","Heritage Rooms"],badge:null},
+    {n:"Lemon Tree Premier",s:4,tier:"mid",r:4.2,pn:4500,loc:"HITEC City",am:["Pool","Gym","Free WiFi","Restaurant"],badge:"rec"},
+    {n:"Hotel Minerva Grand",s:3,tier:"mid",r:4.0,pn:2600,loc:"Secunderabad",am:["Free WiFi","AC","Restaurant"],badge:null},
+    {n:"Zostel Hyderabad",s:1,tier:"budget",r:4.4,pn:580,loc:"Banjara Hills",am:["Dorm/Private","Free WiFi","Social Events"],badge:"rec"},
+  ],
+  "Kolkata":[
+    {n:"The Oberoi Grand",s:5,tier:"luxury",r:4.8,pn:18000,loc:"Chowringhee",am:["Pool","Spa","Heritage","Butler","Fine Dining"],badge:"pop"},
+    {n:"ITC Royal Bengal",s:5,tier:"luxury",r:4.7,pn:16000,loc:"Rajarhat",am:["Pool","Spa","Rooftop","Gym"],badge:null},
+    {n:"Taj Bengal",s:5,tier:"luxury",r:4.7,pn:15000,loc:"Alipore",am:["Pool","Spa","Garden","Heritage"],badge:null},
+    {n:"Lytton Hotel",s:3,tier:"mid",r:4.2,pn:3000,loc:"Park Street",am:["Heritage Property","Free WiFi","AC","Restaurant"],badge:"rec"},
+    {n:"Hotel Lindsay",s:2,tier:"mid",r:3.9,pn:2200,loc:"Lindsay Street",am:["Central Location","Free WiFi","AC"],badge:null},
+    {n:"Zostel Kolkata",s:1,tier:"budget",r:4.3,pn:600,loc:"Sudder Street",am:["Dorm/Private","Free WiFi","Social Vibe"],badge:"rec"},
+  ],
+  "Agra":[
+    {n:"The Oberoi Amarvilas",s:5,tier:"luxury",r:4.9,pn:55000,loc:"Taj East Gate",am:["Taj View Rooms","Pool","Spa","Butler","Fine Dining"],badge:"pop"},
+    {n:"ITC Mughal",s:5,tier:"luxury",r:4.7,pn:18000,loc:"Fatehabad Road",am:["Pool","Spa","Mughal Gardens","Fine Dining"],badge:null},
+    {n:"Crystal Sarovar Premiere",s:4,tier:"mid",r:4.3,pn:5000,loc:"Fatehabad Road",am:["Pool","Free WiFi","Restaurant","Gym"],badge:"rec"},
+    {n:"Hotel Amar Yatri Niwas",s:3,tier:"mid",r:4.1,pn:2500,loc:"Fatehabad Road",am:["Free WiFi","AC","Restaurant","Taj View"],badge:null},
+    {n:"Zostel Agra",s:1,tier:"budget",r:4.5,pn:550,loc:"Tajganj",am:["Dorm/Private","Rooftop Taj View","Free WiFi"],badge:"rec"},
+    {n:"Tourist Rest House",s:1,tier:"budget",r:4.0,pn:900,loc:"Kutchery Road",am:["Free WiFi","Travel Desk","AC"],badge:null},
+  ],
+  "Udaipur":[
+    {n:"Taj Lake Palace",s:5,tier:"luxury",r:4.9,pn:42000,loc:"Lake Pichola (Island)",am:["Lake Views","Pool","Spa","Butler","Boat Transfer"],badge:"pop"},
+    {n:"The Leela Palace Udaipur",s:5,tier:"luxury",r:4.8,pn:30000,loc:"Lake Pichola",am:["Pool","Spa","Lake View","Butler"],badge:null},
+    {n:"Amet Haveli",s:3,tier:"mid",r:4.5,pn:4500,loc:"Hanuman Ghat",am:["Heritage Haveli","Lake View","Pool","Restaurant"],badge:"rec"},
+    {n:"Hotel Mahendra Prakash",s:3,tier:"mid",r:4.2,pn:2800,loc:"City Palace Road",am:["Heritage Property","Free WiFi","Rooftop"],badge:null},
+    {n:"Zostel Udaipur",s:1,tier:"budget",r:4.6,pn:600,loc:"Lake Pichola",am:["Dorm/Private","Lake View","Social Events"],badge:"pop"},
+    {n:"Bunkyard Hostel",s:1,tier:"budget",r:4.4,pn:700,loc:"Gangaur Ghat",am:["Dorm/Private","Lake View","Free WiFi"],badge:"rec"},
+  ],
+  "Varanasi":[
+    {n:"Taj Ganges",s:5,tier:"luxury",r:4.6,pn:12000,loc:"Nadesar Palace Grounds",am:["Pool","Spa","Heritage","Fine Dining"],badge:"pop"},
+    {n:"Brijrama Palace",s:4,tier:"mid",r:4.5,pn:6500,loc:"Darbhanga Ghat",am:["Heritage Haveli","Ganga View","Restaurant"],badge:"rec"},
+    {n:"Hotel Surya",s:3,tier:"mid",r:4.1,pn:2800,loc:"The Mall",am:["Rooftop Pool","Free WiFi","Restaurant"],badge:null},
+    {n:"Stops Hostel Varanasi",s:1,tier:"budget",r:4.4,pn:600,loc:"Assi Ghat",am:["Dorm/Private","Ganga View","Yoga"],badge:"rec"},
+    {n:"Zostel Varanasi",s:1,tier:"budget",r:4.3,pn:550,loc:"Scindia Ghat",am:["Dorm/Private","Ghat Access","Free WiFi"],badge:null},
+  ],
+  "Mysore":[
+    {n:"Lalitha Mahal Palace Hotel",s:5,tier:"luxury",r:4.6,pn:12000,loc:"T. Narasipura Road",am:["Heritage Palace","Pool","Fine Dining"],badge:"pop"},
+    {n:"Royal Orchid Metropole",s:4,tier:"mid",r:4.4,pn:6000,loc:"5th Cross",am:["Heritage Property","Pool","Restaurant"],badge:"rec"},
+    {n:"Hotel Pai Vista",s:3,tier:"mid",r:4.2,pn:3000,loc:"Sayyaji Rao Road",am:["Free WiFi","Restaurant","AC"],badge:null},
+    {n:"Zostel Mysore",s:1,tier:"budget",r:4.3,pn:550,loc:"Near Palace",am:["Dorm/Private","Free WiFi","Common Room"],badge:"rec"},
+  ],
+  "Shimla":[
+    {n:"Wildflower Hall",s:5,tier:"luxury",r:4.8,pn:28000,loc:"Mashobra",am:["Infinity Pool","Spa","Mountain Views","Butler"],badge:"pop"},
+    {n:"The Cecil",s:5,tier:"luxury",r:4.7,pn:18000,loc:"The Mall",am:["Heritage Colonial","Spa","Mountain Views"],badge:null},
+    {n:"Oberoi Clarke's Hotel",s:5,tier:"luxury",r:4.6,pn:16000,loc:"The Mall",am:["Heritage","Mountain View","Spa"],badge:null},
+    {n:"Hotel Combermere",s:3,tier:"mid",r:4.3,pn:4000,loc:"The Mall",am:["Mountain View","Free WiFi","Restaurant"],badge:"rec"},
+    {n:"YMCA Shimla",s:2,tier:"budget",r:4.0,pn:1200,loc:"The Ridge",am:["Heritage Building","Free WiFi","Meals Included"],badge:"rec"},
+    {n:"Zostel Shimla",s:1,tier:"budget",r:4.4,pn:700,loc:"Jakhu",am:["Dorm/Private","Mountain View","Free WiFi"],badge:"rec"},
+  ],
+  "Manali":[
+    {n:"The Himalayan",s:5,tier:"luxury",r:4.7,pn:18000,loc:"Club House Road",am:["River View","Spa","Bonfire","Helipad"],badge:"pop"},
+    {n:"Snow Valley Resorts",s:3,tier:"mid",r:4.3,pn:4500,loc:"Old Manali",am:["Mountain View","Bonfire","Free WiFi"],badge:"rec"},
+    {n:"Hotel Rohtang Manalsu",s:3,tier:"mid",r:4.2,pn:3500,loc:"Mall Road",am:["River View","Free WiFi","Restaurant"],badge:null},
+    {n:"Zostel Manali",s:1,tier:"budget",r:4.6,pn:650,loc:"Old Manali",am:["Dorm/Private","Mountain View","Social Events"],badge:"pop"},
+    {n:"Backpacker Panda",s:1,tier:"budget",r:4.3,pn:600,loc:"Old Manali",am:["Dorm/Private","Free WiFi","Common Room"],badge:null},
+  ],
+  "Rishikesh":[
+    {n:"Taj Rishikesh Resort & Spa",s:5,tier:"luxury",r:4.8,pn:30000,loc:"Shivpuri",am:["Ganga View","Infinity Pool","Spa","Yoga"],badge:"pop"},
+    {n:"Ananda in the Himalayas",s:5,tier:"luxury",r:4.9,pn:45000,loc:"Narendra Nagar",am:["World-Class Spa","Yoga","Pool","Ayurveda"],badge:"pop"},
+    {n:"Camp Aquaterra",s:3,tier:"mid",r:4.4,pn:4500,loc:"Shivpuri",am:["River View","Rafting","Bonfire","Camping"],badge:"rec"},
+    {n:"Hotel Bilal",s:2,tier:"mid",r:4.1,pn:2200,loc:"Laxman Jhula",am:["River View","Free WiFi","Rooftop"],badge:null},
+    {n:"Zostel Rishikesh",s:1,tier:"budget",r:4.6,pn:650,loc:"Laxman Jhula",am:["Dorm/Private","Ganga View","Yoga Nearby"],badge:"rec"},
+    {n:"Moustache Rishikesh",s:1,tier:"budget",r:4.5,pn:700,loc:"Ram Jhula",am:["Dorm/Private","Rooftop","Social Events"],badge:"rec"},
+  ],
+};
+
+const ACCOM={budget:600,mid:2000,luxury:6000};
+const TIER_COL={budget:"#E07070",mid:"#D4A847",luxury:"#2EC4B6"};
+const ACCENTS=["#D4A847","#2EC4B6","#E07070","#7EB8D4","#A87ED4"];
+const TIMES=["07:30","09:00","12:00","14:30","17:00","19:30","21:00"];
+let _cities=[];
+
+// ══════════════════════════════════════════════════════════════
+// UI SETUP
+// ══════════════════════════════════════════════════════════════
+document.querySelectorAll('.pill').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('#cpills .pill').forEach(x=>x.classList.remove('on'));
+    p.classList.add('on');
+  });
+});
+
+let _n=2;
+
+function addCity(){
+  _n++;
+  const list=document.getElementById('clist');
+  const row=document.createElement('div');
+  row.className='c-row';
+  row.innerHTML=`<span class="c-idx">${String(_n).padStart(2,'0')}</span><input type="text" placeholder="City name"/><button class="btn-rm" onclick="rmCity(this)">×</button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+  reIdx();
+}
+
+function rmCity(btn){
+  if(document.querySelectorAll('#clist .c-row').length<=2)return alert('Minimum 2 cities required.');
+  btn.closest('.c-row').remove();reIdx();
+}
+
+function reIdx(){
+  document.querySelectorAll('#clist .c-row').forEach((r,i)=>{
+    r.querySelector('.c-idx').textContent=String(i+1).padStart(2,'0');
+  });
+}
+
+function getCities(){
+  return Array.from(document.querySelectorAll('#clist .c-row input')).map(i=>i.value.trim()).filter(Boolean);
+}
+
+function norm(c){return Object.keys(CITY).find(k=>k.toLowerCase()===c.toLowerCase())||c;}
+function getCuisine(){const el=document.querySelector('#cpills .pill.on');return el?el.dataset.v:'Any';}
+
+// ══════════════════════════════════════════════════════════════
+// GENERATE
+// ══════════════════════════════════════════════════════════════
+function generate(){
+  const raw=getCities();
+  const budget=parseFloat(document.getElementById('budget').value)||0;
+  const dur=parseInt(document.getElementById('duration').value)||0;
+  const accom=document.getElementById('accom').value;
+  if(raw.length<2)return alert('Please enter at least 2 cities.');
+  if(budget<1000)return alert('Please enter a valid budget (min ₹1,000).');
+  if(dur<1)return alert('Please enter a valid duration.');
+
+  const cities=raw.map(norm);
+  _cities=cities;
+  const dpC=distDays(dur,cities.length);
+  const nCost=ACCOM[accom];
+  const tAccom=dur*nCost;
+  const tTravel=Math.round(budget*0.22);
+  const rem=budget-tAccom-tTravel;
+  const food=Math.max(0,Math.round(rem*0.58));
+  const act=Math.max(0,rem-food);
+  const perC=cities.map((_,i)=>({
+    accom:dpC[i]*nCost,
+    food:Math.round((food/dur)*dpC[i]),
+    act:Math.round((act/dur)*dpC[i]),
+    travel:Math.round(tTravel/Math.max(cities.length-1,1)),
+  }));
+
+  renderStats(cities,budget,dur);
+  renderRoute(cities);
+  renderItin(cities,dpC);
+  renderBudget(budget,tAccom,tTravel,food,act,cities,perC,dpC);
+  renderRests(cities);
+  renderHotels(cities,dpC,accom);
+
+  const out=document.getElementById('output');
+  out.classList.add('show');
+  setTimeout(()=>out.scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+function distDays(total,count){
+  const base=Math.floor(total/count),rem=total%count;
+  return Array.from({length:count},(_,i)=>base+(i<rem?1:0));
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ══════════════════════════════════════════════════════════════
+function renderStats(cities,budget,dur){
+  document.getElementById('stats').innerHTML=[
+    {v:cities.length,l:'Cities'},{v:dur,l:'Days'},
+    {v:'₹'+Math.round(budget/1000)+'K',l:'Total Budget'},
+    {v:'₹'+Math.round(budget/dur).toLocaleString('en-IN'),l:'Per Day'},
+  ].map(s=>`<div class="stat"><div class="stat-val">${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
+}
+
+function renderRoute(cities){
+  document.getElementById('rtrack').innerHTML=cities.map((c,i)=>{
+    const cls=i===0?'start':i===cities.length-1?'end':'';
+    const line=i<cities.length-1?`<div class="r-line"></div>`:'';
+    return `<div class="r-stop"><div class="r-node"><div class="r-ring ${cls}">${String.fromCharCode(65+i)}</div><div class="r-name">${c}</div></div>${line}</div>`;
+  }).join('');
+}
+
+function renderItin(cities,dpC){
+  let html='',day=1;
+  cities.forEach((city,ci)=>{
+    const d=CITY[city]||{h:[],t:'Local transport'};
+    const hi=[...d.h];
+    for(let dd=0;dd<dpC[ci];dd++){
+      const slice=hi.splice(0,2);
+      const acts=buildActs(city,slice,dd,dpC[ci],d.t);
+      const isOpen=dd===0&&ci===0;
+      html+=`<div class="day-card${isOpen?' open':''}">
+        <div class="day-head" onclick="toggleDay(this)">
+          <div class="dhl">
+            <span class="d-badge">Day ${String(day).padStart(2,'0')}</span>
+            <span class="d-title">${dayTitle(dd,dpC[ci],city)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.7rem">
+            <span class="d-city">${city}</span>
+            <span class="d-chev">›</span>
+          </div>
+        </div>
+        <div class="day-body${isOpen?' open':''}">
+          <ul class="sched">${acts.map((a,ai)=>`<li class="srow"><span class="stime">${TIMES[ai]||'—'}</span><span class="stext">${a}</span></li>`).join('')}</ul>
+        </div>
+      </div>`;
+      day++;
+    }
+    if(ci<cities.length-1)html+=`<div class="transit"><span>✦ Transfer — ${city} → ${cities[ci+1]}</span></div>`;
+  });
+  document.getElementById('pane-itin').innerHTML=html;
+}
+
+function dayTitle(idx,total,city){
+  if(total===1)return`Exploring ${city}`;
+  if(idx===0)return`Arrival — ${city}`;
+  if(idx===total-1)return`Final Day in ${city}`;
+  return`${city} — Day ${idx+1}`;
+}
+
+function buildActs(city,slice,dayIdx,totalDays,transport){
+  return[
+    dayIdx===0?`Arrive in <strong>${city}</strong>. Check in and settle.`:`Morning — local breakfast and orientation.`,
+    slice[0]?`Visit <strong>${slice[0]}</strong>.`:`Explore local markets at a leisurely pace.`,
+    `Lunch — sample regional cuisine. <span class="ssub">See Restaurants tab for curated suggestions.</span>`,
+    slice[1]?`Afternoon at <strong>${slice[1]}</strong>.`:`Free time for shopping or relaxation.`,
+    `Evening movement. <span class="ssub">${transport}</span>`,
+    dayIdx===totalDays-1&&totalDays>1?`Pack and prepare for departure. Farewell dinner.`:`Dinner and rest for tomorrow's journey.`,
+  ];
+}
+
+function toggleDay(head){
+  const card=head.closest('.day-card');
+  card.classList.toggle('open');
+  head.nextElementSibling.classList.toggle('open');
+}
+
+function renderBudget(budget,accom,travel,food,act,cities,perC,dpC){
+  const bars=[
+    {l:'Accommodation',a:accom,col:'#D4A847'},{l:'Travel & Transport',a:travel,col:'#2EC4B6'},
+    {l:'Food & Dining',a:food,col:'#A87ED4'},{l:'Activities',a:act,col:'#E07070'},
+  ];
+  const cityCards=cities.map((c,i)=>`
+    <div class="city-bcard">
+      <div class="city-bname">${c}</div>
+      <div style="font-size:0.62rem;color:var(--mist);margin-bottom:0.45rem">${dpC[i]} day${dpC[i]>1?'s':''}</div>
+      ${[['Stay',perC[i].accom],['Food',perC[i].food],['Activity',perC[i].act],['Transit',perC[i].travel]].map(r=>`<div class="brow2"><span>${r[0]}</span><span class="v">₹${r[1].toLocaleString('en-IN')}</span></div>`).join('')}
+      <div style="height:1px;background:var(--edge);margin:0.5rem 0"></div>
+      <div class="brow2" style="color:var(--silver)"><span>Total</span><span class="v" style="color:var(--amber)">₹${(perC[i].accom+perC[i].food+perC[i].act+perC[i].travel).toLocaleString('en-IN')}</span></div>
+    </div>`).join('');
+  document.getElementById('pane-budget').innerHTML=`
+    <div class="bud-grid">
+      <div class="bud-stat"><div class="bud-val">₹${budget.toLocaleString('en-IN')}</div><div class="bud-lbl">Total Budget</div></div>
+      <div class="bud-stat"><div class="bud-val">₹${Math.round(budget/dpC.reduce((a,b)=>a+b,0)).toLocaleString('en-IN')}</div><div class="bud-lbl">Daily Average</div></div>
+    </div>
+    <div class="bars-wrap">${bars.map(b=>`<div class="brow"><div class="brow-top"><span class="brow-name">${b.l}</span><span class="brow-amt">₹${b.a.toLocaleString('en-IN')}</span></div><div class="btrack"><div class="bfill" style="width:${Math.round(b.a/budget*100)}%;background:${b.col}"></div></div></div>`).join('')}</div>
+    <div class="s-eyebrow" style="margin-bottom:1rem">Per-City Allocation</div>
+    <div class="city-grid">${cityCards}</div>
+    <div class="bud-tip">Recommendation — Reserve ₹${Math.round(budget*0.05).toLocaleString('en-IN')} (5% of budget) as an emergency contingency throughout your journey.</div>`;
+}
+
+function renderRests(cities,filterC){
+  const cuisine=filterC||getCuisine();
+  const fpills=['Any','North Indian','South Indian','Seafood','Continental','Mughlai','Street Food']
+    .map(c=>`<button class="pill${cuisine===c?' on':''}" onclick="renderRests(_cities,'${c}')">${c}</button>`).join('');
+  let sections='';
+  cities.forEach((city,ci)=>{
+    const all=RESTS[city]||[{n:`${city} Restaurant`,c:'Multi-Cuisine',r:4.0,p:'₹₹',l:'City Centre'}];
+    const rests=cuisine==='Any'?all:all.filter(r=>r.c.toLowerCase().includes(cuisine.toLowerCase()));
+    const next=cities[ci+1];
+    sections+=`<div class="rsection">
+      <div class="rsec-title"><div class="rsec-dot"></div>${next?`En-route: ${city} → ${next}`:`${city} (Final Destination)`}</div>
+      ${rests.length?`<div class="rest-grid">${rests.map((r,ri)=>`
+        <div class="rcard">
+          <div class="rcard-accent" style="background:${ACCENTS[ri%ACCENTS.length]}"></div>
+          <div class="rname">${r.n}</div>
+          <div class="rtags"><span class="rtag">${r.c}</span><span class="rtag">${r.l}</span></div>
+          <div class="rfoot"><span class="rrating">★ ${r.r}</span><span class="rprice">${r.p}</span></div>
+        </div>`).join('')}</div>`:`<div class="no-rest">No ${cuisine} restaurants found. Try "Any".</div>`}
+    </div>`;
+  });
+  document.getElementById('pane-restaurants').innerHTML=`<div class="rf-bar"><span class="rf-lbl">Filter</span>${fpills}</div>${sections}`;
+}
+
+// ── HOTELS ──────────────────────────────────────────────────────
+function renderHotels(cities,dpC,accomTier,filterTier){
+  const tier=filterTier||'all';
+  const tierPills=[
+    {v:'all',l:'All Tiers'},
+    {v:'budget',l:'Budget'},
+    {v:'mid',l:'Mid-Range'},
+    {v:'luxury',l:'Luxury'},
+  ].map(t=>`<button class="pill${tier===t.v?' on':''}" onclick="renderHotels(_cities,_dpC,'${accomTier||document.getElementById('accom').value}','${t.v}')">${t.l}</button>`).join('');
+
+  // store dpC globally for filter reuse
+  window._dpC=dpC;
+
+  let sections='';
+  cities.forEach((city,ci)=>{
+    const all=HOTELS[city]||[{n:`${city} Hotel`,s:3,tier:'mid',r:4.0,pn:2000,loc:'City Centre',am:['Free WiFi','AC'],badge:null}];
+    const list=tier==='all'?all:all.filter(h=>h.tier===tier);
+
+    // Sort: recommended first, then by rating desc
+    list.sort((a,b)=>{
+      if(a.badge&&!b.badge)return -1;
+      if(!a.badge&&b.badge)return 1;
+      return b.r-a.r;
+    });
+
+    const nights=dpC[ci];
+    sections+=`<div class="hcity-section">
+      <div class="hcity-hd">
+        <div class="hcity-label"><div class="hcity-dot"></div>${city}</div>
+        <div class="hnight-badge">${nights} night${nights>1?'s':''}</div>
+      </div>
+      ${list.length?`<div class="hotel-grid">${list.map(h=>{
+        const stars='★'.repeat(h.s)+'☆'.repeat(Math.max(0,5-h.s));
+        const rFill=Math.round((h.r/5)*100);
+        const stripCol=TIER_COL[h.tier]||'#D4A847';
+        const totalCost=(h.pn*nights).toLocaleString('en-IN');
+        return `<div class="hcard">
+          <div class="hcard-stripe" style="background:${stripCol}"></div>
+          <div class="hcard-body">
+            ${h.badge?`<span class="hcard-badge ${h.badge}">${h.badge==='pop'?'Popular':'Recommended'}</span>`:''}
+            <div class="hcard-stars">${stars}</div>
+            <div class="hcard-name">${h.n}</div>
+            <div class="hcard-loc">${h.loc}</div>
+            <div class="hcard-amenities">${h.am.map(a=>`<span class="hcard-amenity">${a}</span>`).join('')}</div>
+          </div>
+          <div class="hcard-foot">
+            <div class="hcard-price">
+              <div class="hcard-price-val">₹${h.pn.toLocaleString('en-IN')}<span>/night</span></div>
+              <div class="hcard-price-lbl">₹${totalCost} for ${nights} night${nights>1?'s':''}</div>
+            </div>
+            <div class="hcard-rating-wrap">
+              <div class="hcard-r-num">${h.r}/5</div>
+              <div class="hcard-r-bar"><div class="hcard-r-fill" style="width:${rFill}%;background:${stripCol}"></div></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}</div>`:`<div class="no-hotel">No ${tier} tier hotels found for ${city}. Try "All Tiers".</div>`}
+    </div>`;
+  });
+
+  document.getElementById('pane-hotels').innerHTML=`
+    <div class="hf-bar">
+      <span class="hf-lbl">Tier</span>
+      ${tierPills}
+    </div>
+    ${sections}`;
+}
+
+// ── TABS ────────────────────────────────────────────────────────
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('pane-'+id).classList.add('on');
+}
+
+// ── SAVE / LOAD ─────────────────────────────────────────────────
+function saveTrip(){
+  const cities=getCities(),budget=document.getElementById('budget').value,dur=document.getElementById('duration').value;
+  if(!cities.length||!budget||!dur)return alert('Please generate a plan first.');
+  let saved=JSON.parse(localStorage.getItem('vdark2')||'[]');
+  saved.unshift({id:Date.now(),cities,budget:+budget,dur:+dur,accom:document.getElementById('accom').value,date:new Date().toLocaleDateString('en-IN')});
+  if(saved.length>6)saved=saved.slice(0,6);
+  localStorage.setItem('vdark2',JSON.stringify(saved));
+  renderSaved();alert('Trip saved.');
+}
+
+function renderSaved(){
+  const saved=JSON.parse(localStorage.getItem('vdark2')||'[]');
+  const el=document.getElementById('saved-list');
+  if(!saved.length){el.innerHTML='<div style="font-size:0.7rem;color:var(--mist);font-style:italic">No saved trips yet.</div>';return;}
+  el.innerHTML=saved.map(t=>`
+    <div class="saved-item">
+      <div>
+        <div class="s-name">${t.cities.slice(0,3).join(' · ')}${t.cities.length>3?'…':''}</div>
+        <div class="s-meta">₹${t.budget.toLocaleString('en-IN')} · ${t.dur} days · ${t.date}</div>
+      </div>
+      <div class="s-btns">
+        <button class="btn-xs" onclick="loadTrip(${t.id})">Load</button>
+        <button class="btn-xs del" onclick="delTrip(${t.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function loadTrip(id){
+  const saved=JSON.parse(localStorage.getItem('vdark2')||'[]');
+  const t=saved.find(x=>x.id===id);if(!t)return;
+  const list=document.getElementById('clist');list.innerHTML='';_n=0;
+  t.cities.forEach((c,i)=>{
+    _n++;
+    const row=document.createElement('div');row.className='c-row';
+    row.innerHTML=`<span class="c-idx">${String(i+1).padStart(2,'0')}</span><input type="text" value="${c}"/><button class="btn-rm" onclick="rmCity(this)">×</button>`;
+    list.appendChild(row);
+  });
+  document.getElementById('budget').value=t.budget;
+  document.getElementById('duration').value=t.dur;
+  document.getElementById('accom').value=t.accom;
+  generate();
+}
+
+function delTrip(id){
+  let s=JSON.parse(localStorage.getItem('vdark2')||'[]');
+  s=s.filter(x=>x.id!==id);
+  localStorage.setItem('vdark2',JSON.stringify(s));
+  renderSaved();
+}
+
+renderSaved();
+</script>
+</body>
+</html>
